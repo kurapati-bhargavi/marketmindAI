@@ -46,7 +46,7 @@ function SalesForecasting() {
   }, [horizonDays]);
 
   const metrics = forecastData?.metrics || { mae: 0, rmse: 0, r2_score: 0 };
-  const history = forecastData?.historical_daily || [];
+  const history = forecastData?.historical || [];
   const forecast = forecastData?.forecast || [];
 
   // Combine historical and forecast for seamless time-series chart visualization
@@ -235,7 +235,7 @@ function SalesForecasting() {
         <div className="glass-card" style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "14px" }}>
           <h3 style={{ fontSize: "16px", fontWeight: 700 }}>AI Strategic Interpretation</h3>
           <div style={{ fontSize: "13px", color: "var(--text-main)", lineHeight: 1.6 }}>
-            {forecastData?.ai_interpretation || "The forecasted revenue trend shows steady demand with weekend spikes. Ensure inventory safety buffers are stocked 7 days prior to peak anticipated dates."}
+            {forecastData?.business_interpretation || "The forecasted revenue trend shows steady demand with weekend spikes. Ensure inventory safety buffers are stocked 7 days prior to peak anticipated dates."}
           </div>
 
           <div style={{ padding: "12px", borderRadius: "8px", background: "#eff6ff", border: "1px solid #dbeafe", fontSize: "12px", color: "#1e40af" }}>

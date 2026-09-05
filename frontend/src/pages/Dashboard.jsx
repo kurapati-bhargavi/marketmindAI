@@ -10,7 +10,8 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Calendar,
-  Layers
+  Layers,
+  UserX
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -74,8 +75,39 @@ function Dashboard({ user, onNavigate }) {
     return (
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "400px" }}>
         <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: "24px", marginBottom: "8px" }}>⚡</div>
+          <div style={{ width: "48px", height: "48px", border: "4px solid #e2e8f0", borderTopColor: "#2563eb", borderRadius: "50%", margin: "0 auto 16px", animation: "spin 0.8s linear infinite" }} />
           <div style={{ fontWeight: 600, color: "var(--text-muted)" }}>Loading Sales Intelligence Dashboard...</div>
+          <div style={{ fontSize: "12px", color: "var(--text-dim)", marginTop: "4px" }}>Fetching live data from all connected services</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state — no data yet
+  if (!kpis || kpis.total_orders === 0) {
+    return (
+      <div className="animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
+        <div style={{ fontSize: "24px", fontWeight: 800 }}>Welcome to MarketMind AI 👋</div>
+        <div
+          className="glass-card"
+          style={{
+            padding: "60px 40px",
+            textAlign: "center",
+            background: "linear-gradient(135deg, #f8fafc 0%, #f0f4ff 100%)"
+          }}
+        >
+          <div style={{ fontSize: "52px", marginBottom: "16px" }}>📊</div>
+          <h2 style={{ fontSize: "22px", fontWeight: 800, marginBottom: "10px" }}>No Sales Data Yet</h2>
+          <p style={{ color: "var(--text-muted)", fontSize: "14px", maxWidth: "480px", margin: "0 auto 24px" }}>
+            Upload your first CSV dataset to unlock AI-powered insights, revenue forecasting, churn predictions, and more.
+          </p>
+          <button
+            className="btn-primary"
+            onClick={() => onNavigate && onNavigate("upload")}
+            style={{ fontSize: "15px", padding: "12px 28px" }}
+          >
+            ⬆ Upload Sales CSV to Get Started
+          </button>
         </div>
       </div>
     );

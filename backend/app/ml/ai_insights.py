@@ -148,6 +148,19 @@ def generate_executive_ai_insights(db: Session) -> dict:
             "data_source": "Product Revenue Analysis"
         })
 
+    # Flatten all action items into strategic next steps
+    strategic_next_steps = []
+    for ins in insights:
+        for action in ins.get("action_items", []):
+            if action not in strategic_next_steps:
+                strategic_next_steps.append(action)
+
+    if not strategic_next_steps:
+        strategic_next_steps = [
+            "Maintain current operational momentum across core sales channels.",
+            "Schedule weekly inventory audit to prevent stockout bottlenecks."
+        ]
+
     final_health_score = max(35, min(98, health_score))
     if final_health_score >= 80:
         status = "EXCELLENT PERFORMANCE"
@@ -161,6 +174,7 @@ def generate_executive_ai_insights(db: Session) -> dict:
         "overall_health_score": final_health_score,
         "business_status": status,
         "insights": insights,
+        "strategic_next_steps": strategic_next_steps,
         "key_metrics": {
             "total_revenue": round(float(total_revenue), 2),
             "total_orders": int(total_orders),
@@ -170,3 +184,4 @@ def generate_executive_ai_insights(db: Session) -> dict:
         },
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
+

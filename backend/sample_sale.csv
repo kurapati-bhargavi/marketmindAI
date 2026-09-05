@@ -1,3 +1,44 @@
-customer_id,product_id,quantity
-1,2,2
-1,2,3
+customer_name,customer_email,customer_phone,product_name,category,quantity,unit_price,total_amount,sale_date,payment_method
+Aditi Sharma,aditi.sharma@example.com,+91-9876543201,Wireless Bluetooth Earbuds,Electronics,2,2499.00,4998.00,2026-07-01,UPI
+Rajesh Kumar,rajesh.kumar@example.com,+91-9876543202,Ultra HD Smart Watch,Electronics,1,4999.00,4999.00,2026-07-02,CREDIT_CARD
+Priya Patel,priya.patel@example.com,+91-9876543203,Classic Slim-Fit Denim Jeans,Apparel,2,1999.00,3998.00,2026-07-03,DEBIT_CARD
+Vikram Singh,vikram.singh@example.com,+91-9876543204,Stainless Steel Air Fryer,Home & Kitchen,1,6499.00,6499.00,2026-07-05,UPI
+Ananya Roy,ananya.roy@example.com,+91-9876543205,Vitamin C Brightening Serum,Health & Beauty,3,799.00,2397.00,2026-07-06,NET_BANKING
+Karthik Iyer,karthik.iyer@example.com,+91-9876543206,Noise Cancelling Headphones,Electronics,1,8499.00,8499.00,2026-07-08,CREDIT_CARD
+Sneha Reddy,sneha.reddy@example.com,+91-9876543207,Premium Organic Cotton T-Shirt,Apparel,4,899.00,3596.00,2026-07-10,UPI
+Amitabh Verma,amitabh.verma@example.com,+91-9876543208,Cast Iron Dutch Oven,Home & Kitchen,1,3899.00,3899.00,2026-07-11,CARD
+Pooja Nair,pooja.nair@example.com,+91-9876543209,Sonic Electric Toothbrush,Health & Beauty,2,2199.00,4398.00,2026-07-13,UPI
+Rohan Mehta,rohan.mehta@example.com,+91-9876543210,Fast Charging Power Bank 20000mAh,Electronics,2,1899.00,3798.00,2026-07-14,UPI
+Deepak Gupta,deepak.gupta@example.com,+91-9876543211,Ergonomic Office Chair,Furniture,1,11499.00,11499.00,2026-07-16,CREDIT_CARD
+Kavita Joshi,kavita.joshi@example.com,+91-9876543212,Hydrating Hyaluronic Acid Gel,Health & Beauty,2,699.00,1398.00,2026-07-18,UPI
+Suresh Menon,suresh.menon@example.com,+91-9876543213,Non-Stick Granite Cookware Set,Home & Kitchen,1,4599.00,4599.00,2026-07-20,CARD
+Neha Kapoor,neha.kapoor@example.com,+91-9876543214,Floral Print Summer Dress,Apparel,1,2499.00,2499.00,2026-07-22,UPI
+Arjun Sen,arjun.sen@example.com,+91-9876543215,Mechanical Gaming Keyboard,Electronics,1,3499.00,3499.00,2026-07-24,NET_BANKING
+Aditi Sharma,aditi.sharma@example.com,+91-9876543201,Fast Charging Power Bank 20000mAh,Electronics,1,1899.00,1899.00,2026-07-26,UPI
+Rajesh Kumar,rajesh.kumar@example.com,+91-9876543202,Wireless Bluetooth Earbuds,Electronics,1,2499.00,2499.00,2026-07-28,CREDIT_CARD
+Priya Patel,priya.patel@example.com,+91-9876543203,Premium Organic Cotton T-Shirt,Apparel,2,899.00,1798.00,2026-07-30,UPI
+Manoj Tiwari,manoj.tiwari@example.com,+91-9876543216,4K Action Camera,Electronics,1,9999.00,9999.00,2026-08-01,CREDIT_CARD
+Divya Rathi,divya.rathi@example.com,+91-9876543217,Anti-Aging Night Cream,Health & Beauty,1,1299.00,1299.00,2026-08-02,UPI
+Harish Bhat,harish.bhat@example.com,+91-9876543218,Adjustable Dumbbell Set 20kg,Fitness,1,7499.00,7499.00,2026-08-04,CARD
+Meera Pillai,meera.pillai@example.com,+91-9876543219,Yoga Mat with Alignment Lines,Fitness,2,1199.00,2398.00,2026-08-05,UPI
+Aditi Sharma,aditi.sharma@example.com,+91-9876543201,Noise Cancelling Headphones,Electronics,1,8499.00,8499.00,2026-08-07,UPI
+Vikram Singh,vikram.singh@example.com,+91-9876543204,Cast Iron Dutch Oven,Home & Kitchen,1,3899.00,3899.00,2026-08-09,UPI
+Ananya Roy,ananya.roy@example.com,+91-9876543205,Sonic Electric Toothbrush,Health & Beauty,1,2199.00,2199.00,2026-08-11,NET_BANKING
+Karthik Iyer,karthik.iyer@example.com,+91-9876543206,Mechanical Gaming Keyboard,Electronics,1,3499.00,3499.00,2026-08-12,CREDIT_CARD
+Sneha Reddy,sneha.reddy@example.com,+91-9876543207,Classic Slim-Fit Denim Jeans,Apparel,1,1999.00,1999.00,2026-08-14,UPI
+Amitabh Verma,amitabh.verma@example.com,+91-9876543208,Stainless Steel Air Fryer,Home & Kitchen,1,6499.00,6499.00,2026-08-15,CARD
+Pooja Nair,pooja.nair@example.com,+91-9876543209,Hydrating Hyaluronic Acid Gel,Health & Beauty,2,699.00,1398.00,2026-08-17,UPI
+Rohan Mehta,rohan.mehta@example.com,+91-9876543210,Ultra HD Smart Watch,Electronics,1,4999.00,4999.00,2026-08-19,UPI
+Deepak Gupta,deepak.gupta@example.com,+91-9876543211,Mechanical Gaming Keyboard,Electronics,1,3499.00,3499.00,2026-08-20,CREDIT_CARD
+Kavita Joshi,kavita.joshi@example.com,+91-9876543212,Vitamin C Brightening Serum,Health & Beauty,1,799.00,799.00,2026-08-22,UPI
+Suresh Menon,suresh.menon@example.com,+91-9876543213,Stainless Steel Air Fryer,Home & Kitchen,1,6499.00,6499.00,2026-08-24,CARD
+Neha Kapoor,neha.kapoor@example.com,+91-9876543214,Premium Organic Cotton T-Shirt,Apparel,3,899.00,2697.00,2026-08-26,UPI
+Arjun Sen,arjun.sen@example.com,+91-9876543215,Wireless Bluetooth Earbuds,Electronics,1,2499.00,2499.00,2026-08-27,NET_BANKING
+Tarun Agarwal,tarun.agarwal@example.com,+91-9876543220,Ultra HD Smart Watch,Electronics,1,4999.00,4999.00,2026-08-29,UPI
+Swati Deshmukh,swati.deshmukh@example.com,+91-9876543221,Floral Print Summer Dress,Apparel,2,2499.00,4998.00,2026-08-30,CARD
+Naveen Chandra,naveen.chandra@example.com,+91-9876543222,4K Action Camera,Electronics,1,9999.00,9999.00,2026-09-01,CREDIT_CARD
+Aditi Sharma,aditi.sharma@example.com,+91-9876543201,Ultra HD Smart Watch,Electronics,1,4999.00,4999.00,2026-09-02,UPI
+Rajesh Kumar,rajesh.kumar@example.com,+91-9876543202,Fast Charging Power Bank 20000mAh,Electronics,1,1899.00,1899.00,2026-09-03,CREDIT_CARD
+Priya Patel,priya.patel@example.com,+91-9876543203,Floral Print Summer Dress,Apparel,1,2499.00,2499.00,2026-09-03,UPI
+Karthik Iyer,karthik.iyer@example.com,+91-9876543206,Wireless Bluetooth Earbuds,Electronics,1,2499.00,2499.00,2026-09-04,CREDIT_CARD
+Vikram Singh,vikram.singh@example.com,+91-9876543204,Non-Stick Granite Cookware Set,Home & Kitchen,1,4599.00,4599.00,2026-09-04,UPI

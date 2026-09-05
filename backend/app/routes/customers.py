@@ -102,6 +102,48 @@ def create_customer(
     return new_customer
 
 
+@router.get("/segments")
+def get_customer_segments_alias(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("Business Owner", "Store Manager", "System Administrator"))
+):
+    """
+    Customer segmentation alias.
+    """
+    from app.ml.segmentation import calculate_customer_segmentation
+    return calculate_customer_segmentation(db)
+
+
+@router.get("/{customer_id}")
+def get_customer_by_id(
+    customer_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("Business Owner", "Store Manager", "Sales Executive", "System Administrator"))
+):
+    cust = db.query(Customer).filter(Customer.id == customer_id).first()
+    if not cust:
+        raise HTTPException(status_code=404, detail=f"Customer with ID {customer_id} not found.")
+
+    sales = db.query(Sale).filter(Sale.customer_id == customer_id).all()
+    total_spent = sum(float(s.total_amount) for s in sales)
+    total_orders = len(sales)
+
+    return {
+        "id": cust.id,
+        "name": cust.name,
+        "email": cust.email,
+        "phone": cust.phone,
+        "address": cust.address,
+        "segment": cust.segment or "New",
+        "churn_risk": cust.churn_risk or "Low Risk",
+        "churn_probability": cust.churn_probability or 0.0,
+        "total_orders": total_orders,
+        "total_spent": round(total_spent, 2),
+        "average_order_value": round(total_spent / max(1, total_orders), 2),
+        "created_at": cust.created_at.strftime("%Y-%m-%d %H:%M") if hasattr(cust.created_at, "strftime") else str(cust.created_at)
+    }
+
+
 @router.put("/{customer_id}", response_model=CustomerResponse)
 def update_customer(
     customer_id: int,
@@ -126,4 +168,4 @@ def update_customer(
 
     db.commit()
     db.refresh(cust)
-    return cust
+    return cust

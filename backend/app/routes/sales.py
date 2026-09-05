@@ -153,3 +153,28 @@ def get_sales(
         "pages": max(1, (total_count + limit - 1) // limit),
         "items": items
     }
+
+
+@router.get("/summary")
+def sales_summary_alias(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("Business Owner", "Store Manager", "Sales Executive", "System Administrator"))
+):
+    """
+    Sales summary KPIs alias.
+    """
+    from app.analytics.sales_analytics import get_sales_summary
+    return get_sales_summary(db)
+
+
+@router.get("/trends")
+def sales_trends_alias(
+    days: int = Query(default=30, ge=7, le=180),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("Business Owner", "Store Manager", "Sales Executive", "System Administrator"))
+):
+    """
+    Sales daily and monthly trends alias.
+    """
+    from app.analytics.sales_analytics import get_daily_sales_trend
+    return get_daily_sales_trend(db, days=days)

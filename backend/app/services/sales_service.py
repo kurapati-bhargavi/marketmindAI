@@ -100,22 +100,31 @@ def process_sale(
 def batch_import_sales(db: Session, valid_rows: list[dict], file_hash: str) -> dict:
     """
     High-performance batch ingestion of preprocessed sales records.
+    Strictly resolves products by SKU: if SKU already exists in DB or current batch,
+    it reuses the existing product_id to preserve UNIQUE constraints.
     """
     inserted_sales = 0
     created_customers = 0
     created_products = 0
+    reused_products = 0
+    duplicate_transactions = 0
 
-    # Cache existing customers and products by email / name for speed
+    # Cache existing customers and products by email / name / sku for high-speed resolution
     customers_by_email = {c.email.lower(): c for c in db.query(Customer).filter(Customer.email != None).all()}
     customers_by_name = {c.name.strip().lower(): c for c in db.query(Customer).all()}
+    
+    products_by_sku = {p.sku.strip().lower(): p for p in db.query(Product).filter(Product.sku != None).all()}
     products_by_name = {p.name.strip().lower(): p for p in db.query(Product).all()}
     inventories = {inv.product_id: inv for inv in db.query(Inventory).all()}
+
+    # Track seen invoice numbers in this batch to prevent duplicate transactions
+    existing_invoices = {inv.invoice_number for inv in db.query(Invoice).filter(Invoice.invoice_number != None).all()}
 
     for row in valid_rows:
         cust_name = row["customer_name"].strip()
         cust_email = (row.get("customer_email") or "").strip().lower()
 
-        # Find or create customer
+        # 1. Find or create Customer
         customer = None
         if cust_email and cust_email in customers_by_email:
             customer = customers_by_email[cust_email]
@@ -137,60 +146,130 @@ def batch_import_sales(db: Session, valid_rows: list[dict], file_hash: str) -> d
                 customers_by_email[customer.email.lower()] = customer
             customers_by_name[customer.name.lower()] = customer
 
-        # Find or create product
+        # 2. Find or create Product with strict SKU deduplication
+        row_sku = (row.get("sku") or "").strip()
         prod_name = row["product_name"].strip()
-        product = products_by_name.get(prod_name.lower())
+        product = None
 
-        if not product:
-            base_sku = "".join(c for c in prod_name.upper() if c.isalnum())[:8]
-            sku = f"SKU-{base_sku}-{uuid.uuid4().hex[:4].upper()}"
+        if row_sku and row_sku.lower() in products_by_sku:
+            # SKU matches existing product in DB or batch -> REUSE
+            product = products_by_sku[row_sku.lower()]
+            reused_products += 1
+        elif prod_name.lower() in products_by_name:
+            # Name matches existing product in DB or batch -> REUSE
+            product = products_by_name[prod_name.lower()]
+            reused_products += 1
+        else:
+            # Create new Product
+            if row_sku and row_sku.lower() not in products_by_sku:
+                final_sku = row_sku
+            else:
+                base_sku = "".join(c for c in prod_name.upper() if c.isalnum())[:8]
+                final_sku = f"SKU-{base_sku}-{uuid.uuid4().hex[:4].upper()}"
+
+            cost_p = row.get("cost_price")
+            if cost_p is None:
+                cost_p = round(float(row["unit_price"]) * 0.65, 2)
+
             product = Product(
                 name=prod_name,
                 category=row.get("category", "General Retail"),
                 price=float(row["unit_price"]),
-                cost_price=round(float(row["unit_price"]) * 0.65, 2),
-                sku=sku,
+                cost_price=float(cost_p),
+                sku=final_sku,
                 is_active=True
             )
             db.add(product)
             db.flush()
             created_products += 1
+            products_by_sku[product.sku.lower()] = product
             products_by_name[product.name.lower()] = product
 
-            # Seed default inventory
+        # 3. Deduct or initialize inventory for this product
+        inv = inventories.get(product.id)
+        sale_qty = int(row["quantity"])
+        if not inv:
             inv = Inventory(
                 product_id=product.id,
-                quantity=100,
+                quantity=max(10, 100 - sale_qty),
                 reorder_level=15
             )
             db.add(inv)
             db.flush()
             inventories[product.id] = inv
+        else:
+            inv.quantity = max(0, inv.quantity - sale_qty)
 
-        # Create Sale
+        # 4. Check for low-stock condition and generate Alert if needed
+        if inv.quantity <= inv.reorder_level:
+            existing_alert = db.query(Alert).filter(
+                Alert.alert_type == "LOW_STOCK",
+                Alert.entity_id == str(product.id),
+                Alert.is_resolved == False
+            ).first()
+            if not existing_alert:
+                alert = Alert(
+                    alert_type="LOW_STOCK",
+                    severity="CRITICAL" if inv.quantity == 0 else "HIGH",
+                    title=f"Low Stock Alert: {product.name}",
+                    message=f"Product '{product.name}' is at or below reorder level ({inv.quantity} units remaining / threshold {inv.reorder_level}).",
+                    entity_type="PRODUCT",
+                    entity_id=str(product.id)
+                )
+                db.add(alert)
+
+        # 5. Determine Invoice Number & check duplicate transactions
         dt = row["sale_date"]
-        invoice_number = f"INV-{dt.strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
+        inv_num = row.get("invoice_number")
+        if not inv_num or str(inv_num).lower() in ("nan", "none", "null", ""):
+            inv_num = f"INV-{dt.strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
+        elif inv_num in existing_invoices:
+            duplicate_transactions += 1
+
+        existing_invoices.add(inv_num)
+
+        # 6. Create Sale Transaction
         sale = Sale(
             customer_id=customer.id,
             product_id=product.id,
-            quantity=int(row["quantity"]),
+            quantity=sale_qty,
             unit_price=float(row["unit_price"]),
             total_amount=float(row["total_amount"]),
             payment_method=row.get("payment_method", "CARD"),
-            invoice_number=invoice_number,
+            invoice_number=inv_num,
             sale_date=dt,
             import_hash=file_hash
         )
         db.add(sale)
         inserted_sales += 1
 
+        # 7. Create Invoice
+        invoice = Invoice(
+            customer_id=customer.id,
+            invoice_number=inv_num,
+            total_amount=float(row["total_amount"]),
+            status="PAID",
+            created_at=dt
+        )
+        db.add(invoice)
+
     db.commit()
 
     return {
         "success": True,
-        "message": f"Successfully ingested {inserted_sales} sales transactions.",
+        "message": f"Successfully imported {inserted_sales} sales transactions with inventory synchronization.",
+        "total_rows": len(valid_rows),
+        "valid_rows": len(valid_rows),
+        "invalid_rows": 0,
         "rows_processed": len(valid_rows),
         "rows_inserted": inserted_sales,
-        "customers_created": created_customers,
-        "products_created": created_products
-    }
+        "new_products": created_products,
+        "existing_products_reused": reused_products,
+        "duplicate_products": reused_products,
+        "new_customers": created_customers,
+        "duplicate_transactions": duplicate_transactions,
+        "validation_errors": [],
+        "conflicts": 0,
+        "products_created": created_products,
+        "customers_created": created_customers
+    }

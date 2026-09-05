@@ -47,8 +47,8 @@ function InventoryIntelligence() {
     e.preventDefault();
     if (!selectedItem) return;
     try {
-      await api.post(`/inventory/${selectedItem.product_id}/restock`, {
-        quantity: parseInt(restockQty),
+      await api.put(`/inventory/${selectedItem.product_id}/restock`, {
+        additional_quantity: parseInt(restockQty),
       });
       setActionSuccess(`Successfully added ${restockQty} units to ${selectedItem.product_name}!`);
       fetchInventory();
@@ -65,8 +65,8 @@ function InventoryIntelligence() {
     e.preventDefault();
     if (!selectedItem) return;
     try {
-      await api.put(`/inventory/${selectedItem.product_id}/threshold`, {
-        reorder_threshold: parseInt(reorderThreshold),
+      await api.put(`/inventory/${selectedItem.product_id}/reorder-level`, {
+        new_reorder_level: parseInt(reorderThreshold),
       });
       setActionSuccess(`Updated safety reorder threshold for ${selectedItem.product_name}!`);
       fetchInventory();
@@ -81,18 +81,18 @@ function InventoryIntelligence() {
 
   // KPI Calculations
   const totalItems = inventory.length;
-  const lowStockCount = inventory.filter((i) => i.current_stock > 0 && i.current_stock <= i.reorder_threshold).length;
-  const outOfStockCount = inventory.filter((i) => i.current_stock <= 0).length;
-  const totalValuation = inventory.reduce((acc, i) => acc + (i.current_stock * (i.unit_price || 0)), 0);
+  const lowStockCount = inventory.filter((i) => i.quantity > 0 && i.quantity <= i.reorder_level).length;
+  const outOfStockCount = inventory.filter((i) => i.quantity <= 0).length;
+  const totalValuation = inventory.reduce((acc, i) => acc + (i.quantity * (i.unit_price || 0)), 0);
 
   // Filtered List
   const filteredInventory = inventory.filter((item) => {
     if (search && !item.product_name.toLowerCase().includes(search.toLowerCase()) && !item.sku?.toLowerCase().includes(search.toLowerCase())) {
       return false;
     }
-    if (filterStatus === "low_stock") return item.current_stock > 0 && item.current_stock <= item.reorder_threshold;
-    if (filterStatus === "out_of_stock") return item.current_stock <= 0;
-    if (filterStatus === "in_stock") return item.current_stock > item.reorder_threshold;
+    if (filterStatus === "low_stock") return item.quantity > 0 && item.quantity <= item.reorder_level;
+    if (filterStatus === "out_of_stock") return item.quantity <= 0;
+    if (filterStatus === "in_stock") return item.quantity > item.reorder_level;
     return true;
   });
 
@@ -227,8 +227,8 @@ function InventoryIntelligence() {
                 </tr>
               ) : (
                 filteredInventory.map((item) => {
-                  const isOut = item.current_stock <= 0;
-                  const isLow = item.current_stock > 0 && item.current_stock <= item.reorder_threshold;
+                  const isOut = item.quantity <= 0;
+                  const isLow = item.quantity > 0 && item.quantity <= item.reorder_level;
                   return (
                     <tr key={item.id}>
                       <td>
@@ -238,7 +238,7 @@ function InventoryIntelligence() {
                       <td><span className="badge badge-info">{item.category}</span></td>
                       <td>
                         <div style={{ fontWeight: 800, fontSize: "15px", color: isOut ? "var(--danger-text)" : isLow ? "var(--warning-text)" : "var(--text-main)" }}>
-                          {item.current_stock} units
+                          {item.quantity} units
                         </div>
                       </td>
                       <td>
@@ -250,7 +250,7 @@ function InventoryIntelligence() {
                           <span className="badge badge-success">Optimal</span>
                         )}
                       </td>
-                      <td>{item.reorder_threshold} units</td>
+                      <td>{item.reorder_level} units</td>
                       <td>₹{item.unit_price?.toLocaleString()}</td>
                       <td>{item.location || "Main Warehouse"}</td>
                       <td>
@@ -271,7 +271,7 @@ function InventoryIntelligence() {
                             style={{ padding: "6px 10px", fontSize: "12px" }}
                             onClick={() => {
                               setSelectedItem(item);
-                              setReorderThreshold(item.reorder_threshold);
+                              setReorderThreshold(item.reorder_level);
                               setShowConfigModal(true);
                             }}
                           >
@@ -309,7 +309,7 @@ function InventoryIntelligence() {
                 <input
                   type="text"
                   disabled
-                  value={`${selectedItem.current_stock} units`}
+                  value={`${selectedItem.quantity} units`}
                   style={{ width: "100%", padding: "10px", background: "#f8fafc", border: "1px solid var(--border-light)", borderRadius: "8px" }}
                 />
               </div>

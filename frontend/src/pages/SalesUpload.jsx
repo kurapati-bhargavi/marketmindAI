@@ -74,7 +74,6 @@ function SalesUpload({ onUploadSuccess }) {
 
       if (res.data.success) {
         setImportResult(res.data);
-        if (onUploadSuccess) onUploadSuccess();
       } else {
         setError(res.data.message || "Failed to import CSV records.");
       }
@@ -84,6 +83,7 @@ function SalesUpload({ onUploadSuccess }) {
       setLoading(false);
     }
   };
+
 
   const handleLoadSampleDataset = async () => {
     setLoading(true);
@@ -205,9 +205,16 @@ Rohan Mehta,rohan.mehta@example.com,+91-9876543210,Fast Charging Power Bank 2000
                 className="btn-primary"
                 onClick={handleConfirmImport}
                 disabled={loading || previewData.valid_rows_count === 0 || previewData.is_duplicate}
-                style={{ opacity: previewData.valid_rows_count === 0 ? 0.6 : 1 }}
+                style={{ opacity: previewData.valid_rows_count === 0 || previewData.is_duplicate ? 0.6 : 1 }}
               >
-                {loading ? "Ingesting..." : "Confirm & Import to Database"}
+                {loading ? (
+                  <>
+                    <div style={{ width: "14px", height: "14px", border: "2px solid rgba(255,255,255,0.4)", borderTopColor: "#ffffff", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
+                    Ingesting Data...
+                  </>
+                ) : (
+                  "Confirm & Import to Database"
+                )}
               </button>
             </div>
           </div>
@@ -276,17 +283,26 @@ Rohan Mehta,rohan.mehta@example.com,+91-9876543210,Fast Charging Power Bank 2000
             </div>
           </div>
 
-          <button
-            className="btn-primary"
-            onClick={() => {
-              setFile(null);
-              setPreviewData(null);
-              setImportResult(null);
-            }}
-            style={{ marginTop: "20px" }}
-          >
-            Upload Another Dataset
-          </button>
+          <div style={{ display: "flex", gap: "12px", marginTop: "24px", flexWrap: "wrap" }}>
+            <button
+              className="btn-primary"
+              onClick={() => onUploadSuccess && onUploadSuccess()}
+              style={{ padding: "10px 20px", fontSize: "14px" }}
+            >
+              View Live Dashboard & Insights →
+            </button>
+            <button
+              className="btn-secondary"
+              onClick={() => {
+                setFile(null);
+                setPreviewData(null);
+                setImportResult(null);
+              }}
+              style={{ padding: "10px 18px", fontSize: "14px" }}
+            >
+              Upload Another Dataset
+            </button>
+          </div>
         </div>
       )}
     </div>
@@ -294,3 +310,4 @@ Rohan Mehta,rohan.mehta@example.com,+91-9876543210,Fast Charging Power Bank 2000
 }
 
 export default SalesUpload;
+

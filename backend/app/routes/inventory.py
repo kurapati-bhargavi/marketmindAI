@@ -168,3 +168,17 @@ def update_reorder_level(
         "product_id": product_id,
         "reorder_level": inv.reorder_level
     }
+
+
+@router.get("/alerts")
+def get_inventory_alerts(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("Business Owner", "Store Manager", "Sales Executive", "System Administrator"))
+):
+    """
+    Get active low-stock and out-of-stock inventory alerts.
+    """
+    from app.ml.alerts_engine import sync_and_get_alerts
+    alerts = sync_and_get_alerts(db)
+    inv_alerts = [a for a in alerts if a.get("alert_type") in ("LOW_STOCK", "OUT_OF_STOCK")]
+    return inv_alerts

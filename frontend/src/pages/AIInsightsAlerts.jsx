@@ -40,7 +40,7 @@ function AIInsightsAlerts() {
 
   const handleResolveAlert = async (alertId) => {
     try {
-      await api.post(`/ml/alerts/${alertId}/resolve`);
+      await api.put(`/ml/alerts/${alertId}/resolve`);
       setActionSuccess("Alert marked as resolved!");
       fetchData();
       setTimeout(() => setActionSuccess(""), 3000);
@@ -173,22 +173,36 @@ function AIInsightsAlerts() {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            {insightsList.map((ins, idx) => (
-              <div
-                key={idx}
-                style={{
-                  padding: "12px 14px",
-                  borderRadius: "8px",
-                  background: "#fdf4ff",
-                  borderLeft: "4px solid #a855f7",
-                  fontSize: "13px",
-                  color: "#581c87",
-                  lineHeight: 1.5
-                }}
-              >
-                {ins}
-              </div>
-            ))}
+            {insightsList.map((ins, idx) => {
+              const isPositive = ins.impact === "POSITIVE";
+              const isNegative = ins.impact === "NEGATIVE";
+              const bgColor = isPositive ? "#f0fdf4" : isNegative ? "#fef2f2" : "#fdf4ff";
+              const borderColor = isPositive ? "#22c55e" : isNegative ? "#ef4444" : "#a855f7";
+              const textColor = isPositive ? "#166534" : isNegative ? "#991b1b" : "#581c87";
+              // Support both string (legacy) and object (current) format
+              const isString = typeof ins === "string";
+              return (
+                <div
+                  key={idx}
+                  style={{
+                    padding: "12px 14px",
+                    borderRadius: "8px",
+                    background: isString ? "#fdf4ff" : bgColor,
+                    borderLeft: `4px solid ${isString ? "#a855f7" : borderColor}`,
+                    fontSize: "13px",
+                    color: isString ? "#581c87" : textColor,
+                    lineHeight: 1.5
+                  }}
+                >
+                  {isString ? ins : (
+                    <>
+                      <div style={{ fontWeight: 700, fontSize: "13.5px", marginBottom: "3px" }}>{ins.title}</div>
+                      <div style={{ fontSize: "12.5px", opacity: 0.85 }}>{ins.summary}</div>
+                    </>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

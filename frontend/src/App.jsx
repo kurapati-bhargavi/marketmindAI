@@ -47,11 +47,15 @@ function App() {
   if (page === "register") {
     return (
       <Register
-        onRegisterSuccess={() => setPage("landing")}
+        onRegisterSuccess={() => {
+          setIsLoggedIn(true);
+          setPage("main");
+        }}
         onBackToLogin={() => setPage("login")}
       />
     );
   }
+
 
   // =========================
   // LOGIN

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import api from "../api/api";
 
 function Register({ onRegisterSuccess, onBackToLogin }) {
   const [formData, setFormData] = useState({
@@ -43,63 +44,57 @@ function Register({ onRegisterSuccess, onBackToLogin }) {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        "http://127.0.0.1:8000/auth/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            password: formData.password,
-            role: formData.role,
-          }),
-        }
-      );
+      const response = await api.post("/auth/register", {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+      });
 
-      const data = await response.json();
+      const data = response.data;
+
+      // Save token and user on successful registration
+      if (data.access_token) {
+        localStorage.setItem("token", data.access_token);
+      }
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
 
       console.log("Registration response:", data);
 
-      if (!response.ok) {
-        let errorMessage = "Registration failed.";
-
-        // FastAPI validation errors
-        if (Array.isArray(data.detail)) {
-          errorMessage = data.detail
-            .map((item) => {
-              if (typeof item === "object") {
-                return item.msg || "Invalid input.";
-              }
-
-              return String(item);
-            })
-            .join(", ");
-        }
-
-        // Normal FastAPI error
-        else if (typeof data.detail === "string") {
-          errorMessage = data.detail;
-        }
-
-        throw new Error(errorMessage);
-      }
-
       // Registration successful
       setMessage(
-        data.message || "User registered successfully!"
+        data.message || "User registered successfully! Redirecting..."
       );
 
-      // Move to login page
+      // Move straight to dashboard
       setTimeout(() => {
-  onRegisterSuccess();
-}, 1200);
+        onRegisterSuccess();
+      }, 800);
+
 
     } catch (err) {
       console.error("Registration error:", err);
-      setError(err.message || "Unable to register user.");
+
+      let errorMessage = "Registration failed.";
+
+      if (Array.isArray(err.response?.data?.detail)) {
+        errorMessage = err.response.data.detail
+          .map((item) => {
+            if (typeof item === "object") {
+              return item.msg || "Invalid input.";
+            }
+            return String(item);
+          })
+          .join(", ");
+      } else if (typeof err.response?.data?.detail === "string") {
+        errorMessage = err.response.data.detail;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

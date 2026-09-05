@@ -187,19 +187,67 @@ function Login({ onLogin, onBack }) {
 
         </form>
 
+        {/* Quick Demo Access */}
+        <div style={{ marginTop: "20px", paddingTop: "16px", borderTop: "1px solid #f1f5f9" }}>
+          <div style={{ fontSize: "12px", color: "#64748b", fontWeight: 700, marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.04em", textAlign: "center" }}>
+            ⚡ 1-Click Quick Demo Sign In
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+            <button
+              type="button"
+              onClick={() => {
+                setEmail("owner@marketmind.ai");
+                setPassword("Owner@123");
+              }}
+              style={{
+                padding: "8px",
+                borderRadius: "8px",
+                border: "1px solid #bfdbfe",
+                background: "#eff6ff",
+                color: "#1d4ed8",
+                fontSize: "11.5px",
+                fontWeight: 700,
+                cursor: "pointer"
+              }}
+            >
+              👑 Business Owner
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setEmail("admin@marketmind.ai");
+                setPassword("Admin@123");
+              }}
+              style={{
+                padding: "8px",
+                borderRadius: "8px",
+                border: "1px solid #fecaca",
+                background: "#fef2f2",
+                color: "#b91c1c",
+                fontSize: "11.5px",
+                fontWeight: 700,
+                cursor: "pointer"
+              }}
+            >
+              ⚙️ Administrator
+            </button>
+          </div>
+        </div>
+
         {/* =========================
             BACK BUTTON
         ========================= */}
 
         {onBack && (
-  <button
-    type="button"
-    onClick={onBack}
-    style={styles.backButton}
-  >
-    ← Back to Landing Page
-  </button>
-)}
+          <button
+            type="button"
+            onClick={onBack}
+            style={styles.backButton}
+          >
+            ← Back to Landing Page
+          </button>
+        )}
+
 
       </div>
 
